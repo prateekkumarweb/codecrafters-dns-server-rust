@@ -1,3 +1,4 @@
+use dns_starter_rust::DnsHeader;
 use std::net::UdpSocket;
 
 fn main() {
@@ -6,9 +7,12 @@ fn main() {
 
     loop {
         match udp_socket.recv_from(&mut buf) {
-            Ok((size, source)) => {
-                println!("Received {} bytes from {}", size, source);
-                let response = [];
+            Ok((_, source)) => {
+                let mut header = DnsHeader::from_bytes([0; 12]);
+                header.set_id(1234);
+                header.set_qr(1);
+
+                let response = header.to_bytes();
                 udp_socket
                     .send_to(&response, source)
                     .expect("Failed to send response");
