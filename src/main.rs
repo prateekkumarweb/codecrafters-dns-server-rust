@@ -1,4 +1,4 @@
-use dns_starter_rust::DnsHeader;
+use dns_starter_rust::{header::DnsHeader, DnsQuery, DnsQuestion};
 use std::net::UdpSocket;
 
 fn main() {
@@ -11,8 +11,12 @@ fn main() {
                 let mut header = DnsHeader::from_bytes([0; 12]);
                 header.set_id(1234);
                 header.set_qr(1);
+                header.set_qdcount(1);
+                let mut questions = Vec::new();
+                questions.push(DnsQuestion::new("codecrafters.io".to_string(), 1, 1));
+                let query = DnsQuery::new(header, questions);
 
-                let response = header.to_bytes();
+                let response = query.to_bytes();
                 udp_socket
                     .send_to(&response, source)
                     .expect("Failed to send response");
