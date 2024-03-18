@@ -8,8 +8,8 @@ pub mod question;
 
 pub struct DnsPacket {
     pub header: DnsHeader,
-    questions: Vec<DnsQuestion>,
-    answers: Vec<DnsAnswer>,
+    pub questions: Vec<DnsQuestion>,
+    pub answers: Vec<DnsAnswer>,
 }
 
 impl DnsPacket {

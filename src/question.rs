@@ -48,4 +48,16 @@ impl DnsQuestion {
             index,
         )
     }
+
+    pub fn qname(&self) -> &str {
+        &self.qname
+    }
+
+    pub fn qtype(&self) -> u16 {
+        self.qtype
+    }
+
+    pub fn qclass(&self) -> u16 {
+        self.qclass
+    }
 }
