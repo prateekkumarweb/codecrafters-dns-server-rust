@@ -29,6 +29,25 @@ impl DnsQuestion {
         let mut qname_parts = Vec::new();
         let mut index = index;
         loop {
+            let b1 = bytes[index];
+            if b1 & 0b1100_0000 == 0b1100_0000 {
+                let b2 = bytes[index + 1];
+                let offset = u16::from_be_bytes([b1 & 0b0011_1111, b2]);
+                let mut offset = offset as usize;
+                loop {
+                    let len = bytes[offset] as usize;
+                    if len == 0 {
+                        break;
+                    }
+                    qname_parts.push(
+                        std::str::from_utf8(&bytes[offset + 1..offset + 1 + len])
+                            .expect("Failed to parse qname"),
+                    );
+                    offset += len + 1;
+                }
+                index += 2;
+                break;
+            }
             let len = bytes[index] as usize;
             if len == 0 {
                 index += 1;
