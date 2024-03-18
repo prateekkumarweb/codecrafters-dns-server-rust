@@ -1,4 +1,4 @@
-use dns_starter_rust::{answer::DnsAnswer, header::DnsHeader, question::DnsQuestion, DnsQuery};
+use dns_starter_rust::{answer::DnsAnswer, question::DnsQuestion, DnsPacket};
 use std::net::UdpSocket;
 
 fn main() {
@@ -7,12 +7,22 @@ fn main() {
 
     loop {
         match udp_socket.recv_from(&mut buf) {
-            Ok((_, source)) => {
-                let mut header = DnsHeader::from_bytes([0; 12]);
-                header.set_id(1234);
+            Ok((size, source)) => {
+                let query = DnsPacket::from_bytes(&buf[..size]);
+                let mut header = query.header;
                 header.set_qr(1);
+                header.set_aa(0);
+                header.set_tc(0);
+                header.set_ra(0);
+                header.set_z(0);
+                header.set_rcode(match header.opcode() {
+                    0 => 0,
+                    _ => 4,
+                });
                 header.set_qdcount(1);
                 header.set_ancount(1);
+                header.set_nscount(0);
+                header.set_arcount(0);
                 let mut questions = Vec::new();
                 questions.push(DnsQuestion::new("codecrafters.io".to_string(), 1, 1));
                 let mut answwers = Vec::new();
@@ -23,7 +33,7 @@ fn main() {
                     60,
                     vec![8, 8, 8, 8],
                 ));
-                let query = DnsQuery::new(header, questions, answwers);
+                let query = DnsPacket::new(header, questions, answwers);
 
                 let response = query.to_bytes();
                 udp_socket
