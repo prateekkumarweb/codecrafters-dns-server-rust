@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct DnsQuestion {
     qname: String,
     qtype: u16,
